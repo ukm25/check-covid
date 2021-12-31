@@ -1,24 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import Header from "./components/Header";
+import Nation from "./components/Nation";
+import { getCountries, getData } from "./api/index";
+import Data from "./components/Data";
 
 function App() {
+
+  const [countries, setCountries] = useState([]);
+  const [countriesSelected, setCountriesSelected] = useState();
+  const [dataNewest, setDataNewest] = useState({Confirmed: 0, Active: 0, Deaths: 0});
+  
+    useEffect(() => {
+        getCountries().then((res) => {
+            setCountries(res.data)
+            
+        })
+    },[]);
+
+    useEffect(() => {
+      if(countriesSelected) {
+        getData(countriesSelected.Slug).then((res) => {
+          const data = res.data;
+          const length = data.length;
+          if(data[length - 2]) {
+            setDataNewest(data[length - 2])
+          }
+        })
+
+      }
+    },[countriesSelected, setDataNewest])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Header/>
+      <Nation countries={countries} setCountriesSelected={setCountriesSelected}/>
+      <Data dataNewest={dataNewest}/>
+    </>
   );
 }
 
